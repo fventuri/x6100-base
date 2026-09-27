@@ -144,6 +144,11 @@ only as evidence boundaries, not as planned tasks.
     only ST matches full libc/libm). VERIFY 96/456 firmware functions as stock
     library code (16 CMSIS-DSP + 62 newlib-nano libc + 5 libm + 13 libgcc),
     isolating ~360 application functions. See `docs/library_functions.md`.
+-   [x] Add locality (address-block) classification to `identify_lib_functions.py`
+    (multi-library; derives library blocks from confident matches to promote
+    trivial/ambiguous matches and flag version-variant library code). Classify all
+    456 functions: **103 library / 52 likely-library / 301 application**. Evidence
+    `analysis/library_functions/function_classification.csv`.
 
 ### RX
 

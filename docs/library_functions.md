@@ -82,17 +82,54 @@ firmware performs `double`-precision math through the ARM EABI soft-float path.
 
 See `docs/dsp_primitives.md`.
 
+## Locality-based classification
+
+Linkers place each pulled-in archive's objects contiguously, so the byte-exact
+matches cluster into address blocks. `tools/identify_lib_functions.py --locality`
+derives those blocks from the confident (non-trivial, byte-exact) matches and
+uses them to classify every recovered function. Two library blocks are found:
+
+- `0x0802036c`–`0x080210be` — libgcc soft-float and integer helpers;
+- `0x08034a6c`–`0x0803ccf2` — CMSIS-DSP, newlib-nano, and libm, packed together.
+
+**No application function lies inside the main block**: VERIFIED that the linker
+did not interleave application code with these libraries, which is what makes the
+locality signal reliable.
+
+Classification of all 456 recovered functions
+(`analysis/library_functions/function_classification.csv`):
+
+| Class | Count | Meaning |
+| --- | ---: | --- |
+| `library` | 103 | byte-exact match — 76 VERIFIED (non-trivial), 26 HIGH (trivial matches corroborated by their position inside the matching library's block), 1 MEDIUM |
+| `likely-library` | 52 | inside a library block but no byte-exact match — version-variant library code (MEDIUM) |
+| `application` | 301 | Xiegu's own code: the reverse-engineering target |
+
+Locality promotes trivial exact matches that are ambiguous on their own (e.g. the
+`__aeabi_dcmp*` family, `memset`, `malloc`) when they sit inside the right block,
+and demotes trivial matches that fall outside every block.
+
+Known edges (block bounds are anchor-derived, so functions beyond a block's
+outermost confident matches are missed): a few version-variant CMSIS functions at
+`0x080201b0`–`0x0802036c` sit *below* the start block's first anchor (e.g. the
+bit-reversal routine at `0x080201f0`), and two 12-byte libgcc fp helpers at
+`0x0803ced8`/`0x0803cee4` sit just *above* the main block. All are classified
+`application` but are really library code.
+
 ## Significance
 
-- These 96 functions are stock library code; excluding them focuses the RE effort
-  on the ~360 application functions.
-- Because the matches are exact, they can be renamed with their library symbol
-  names at VERIFIED confidence (the two `_init` type-suffix ambiguities noted in
-  `docs/dsp_primitives.md` excepted).
+- 103 functions are byte-exact stock library code and 52 more are almost
+  certainly library code; excluding all 155 focuses the RE effort on the ~301
+  application functions.
+- Because the byte-exact matches are exact, they can be renamed with their library
+  symbol names at VERIFIED confidence (the trivial locality-promoted names and the
+  `_init` type-suffix ambiguities noted in `docs/dsp_primitives.md` excepted).
 - A compatible reimplementation may link the same libraries rather than
   reimplementing these functions.
 
 ## Reproducing
+
+Single library (matches only):
 
 ```sh
 python3 tools/identify_lib_functions.py \
@@ -100,6 +137,20 @@ python3 tools/identify_lib_functions.py \
     --functions analysis/memory/function_ranges.csv \
     --lib <path to the prebuilt library> \
     --min-confidence 0.99 --min-invariant 24
+```
+
+Full multi-library classification (with locality):
+
+```sh
+python3 tools/identify_lib_functions.py \
+    --image X6100_BBFW_V1.1.9_251127001.bin \
+    --functions analysis/memory/function_ranges.csv \
+    --lib cmsis_dsp=<CubeF4 V1.23.0>/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a \
+    --lib libc_nano=<ST gnu-tools 12.3.1>/.../thumb/v7e-m+fp/hard/libc_nano.a \
+    --lib libm=<ST gnu-tools 12.3.1>/.../thumb/v7e-m+fp/hard/libm.a \
+    --lib libgcc=<ST gnu-tools 12.3.1>/.../thumb/v7e-m+fp/hard/libgcc.a \
+    --locality --merge-gap 8192 \
+    --classify analysis/library_functions/function_classification.csv
 ```
 
 Libraries are proprietary/toolchain files and are not committed; they are the
