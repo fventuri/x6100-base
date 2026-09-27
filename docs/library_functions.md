@@ -116,6 +116,26 @@ bit-reversal routine at `0x080201f0`), and two 12-byte libgcc fp helpers at
 `0x0803ced8`/`0x0803cee4` sit just *above* the main block. All are classified
 `application` but are really library code.
 
+## Applied Ghidra renames
+
+92 of the 103 `library` functions have been renamed to their library symbol in the
+Ghidra project via `analysis/library_functions/verified_library_renames.csv`
+(applied with `RenameVerifiedFromCsv.java`, idempotent). 11 byte-exact matches
+were **excluded** because their name cannot be resolved from bytes alone — they
+are byte-identical across variants and would collide: the `__aeabi_dcmplt`/`dcmple`
+pairs (identical to `dcmpgt`/`dcmpge`), the newlib stub bodies `_fcntl_r` /
+`_close_r` (shared by all `_*_r` syscall stubs), `__aeabi_idiv0` (2-byte), and the
+GCC clone `_strtol_l.constprop.0`. Those remain `FUN_*` and need manual naming.
+
+Apply with:
+
+```sh
+GHIDRA_INSTALL=/opt/ghidra JAVA_HOME=<jdk> \
+PROJECT_DIR=<ghidra project dir> PROJECT_NAME=<project> \
+./tools/run_headless_verified_renames.sh \
+    analysis/library_functions/verified_library_renames.csv
+```
+
 ## Significance
 
 - 103 functions are byte-exact stock library code and 52 more are almost

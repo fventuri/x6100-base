@@ -149,6 +149,9 @@ only as evidence boundaries, not as planned tasks.
     trivial/ambiguous matches and flag version-variant library code). Classify all
     456 functions: **103 library / 52 likely-library / 301 application**. Evidence
     `analysis/library_functions/function_classification.csv`.
+-   [x] Apply VERIFIED Ghidra renames for 92 of the 103 library functions
+    (`analysis/library_functions/verified_library_renames.csv`, idempotent); 11
+    byte-identical/ambiguous stubs left as `FUN_*`.
 
 ### RX
 
