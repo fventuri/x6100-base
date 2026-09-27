@@ -134,6 +134,12 @@ only as evidence boundaries, not as planned tasks.
 
 ## DSP
 
+-   [x] Identify the exact CMSIS-DSP build: STM32Cube_FW_F4 **V1.23.0**
+    prebuilt `libarm_cortexM4lf_math.a` (CMSIS-DSP V1.4.5); VERIFY 16 float
+    primitives (FIR/decimate/interpolate, biquad DF1, CFFT + radix-8,
+    cmplx_mag, scale/abs/copy/fill/max, FIR init) by exact object-code
+    identity. See `docs/dsp_primitives.md`.
+
 ### RX
 
 -   [x] IQ buffers and Q31 input conversion
@@ -196,6 +202,10 @@ only as evidence boundaries, not as planned tasks.
     peripheral and Cortex-M system-register ranges
 -   [x] Generate a deterministic Markdown cross-index from preserved
     analysis CSV files, including an input SHA-256 manifest
+-   [x] Add a relocation-aware static-library function identifier
+    (`tools/identify_lib_functions.py`): masks ELF relocations, scores each
+    firmware function against every library symbol in [0, 1], validated by a
+    self-match positive control
 
 ## Documentation
 

@@ -8,7 +8,9 @@ candidate CMSIS-DSP identities to be assigned without yet renaming
 symbols.
 
 All names in this document are candidates unless explicitly marked
-otherwise.
+otherwise. The CMSIS-DSP identities have now been confirmed by exact
+object-code identity against a specific library build; see
+[CMSIS-DSP library identification](#cmsis-dsp-library-identification-verified).
 
 ## Direct calls from the DMA handler
 
@@ -26,8 +28,11 @@ The following functions implement reusable signal-processing kernels.
 | `0x08036478` | `FUN_08036478` | `candidate_arm_scale_f32` | multiplies each source float by one scalar | HIGH CONFIDENCE |
 
 The mathematical behavior in the final column is VERIFIED from the
-instructions. Exact library symbol identity remains HIGH CONFIDENCE
-until matched against a specific CMSIS-DSP build or signature database.
+instructions. Exact library symbol identity is now also VERIFIED: every
+function in this table is byte-identical to the corresponding symbol in the
+STM32Cube_FW_F4 V1.23.0 prebuilt CMSIS-DSP library. See
+[CMSIS-DSP library identification](#cmsis-dsp-library-identification-verified)
+below.
 
 ## Rate-conversion evidence
 
@@ -103,6 +108,92 @@ Algorithm: VERIFIED. Its DMA-handler call site is a candidate signal
 level/envelope stage; the downstream consumer must be traced before
 that semantic label is finalized.
 
+## CMSIS-DSP library identification (VERIFIED)
+
+The optimized floating-point primitives are byte-for-byte identical to the
+prebuilt CMSIS-DSP library shipped in **STM32Cube_FW_F4 V1.23.0**:
+
+| Property | Value |
+| --- | --- |
+| Source package | STM32Cube_FW_F4 **V1.23.0** |
+| Archive member | `Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a` |
+| SHA-256 | `23585b33cc55776a0c395a164ea1519e1ecde26f0910bbad5d86dd0b0fa1fdf7` |
+| CMSIS-DSP version | V1.4.5 (per bundled `arm_math.h`) |
+| ABI | Cortex-M4, little-endian, hard-float (`lf`) |
+
+ST **rebuilt** this archive in later releases: STM32Cube_FW_F4 V1.24.0
+through V1.27.1 all ship a single, different binary
+(SHA-256 `73e7c4f8...`) whose float functions no longer match the firmware
+(for example `arm_fir_f32` falls to ratio 0.65), and V1.28.0+ omit the
+prebuilt archive entirely. Only the V1.23.0 build matches. The firmware's
+CMSIS-DSP is therefore specifically this build: VERIFIED by exact
+object-code identity.
+
+### Verified function identities
+
+Each firmware function below is byte-identical to the named library symbol
+over every position-independent byte (relocation-affected bytes masked),
+i.e. confidence 1.000. Load base `0x08020000`.
+
+| Firmware address | Library symbol | Invariant / masked bytes |
+| ---: | --- | ---: |
+| `0x08036550` | `arm_radix8_butterfly_f32` | 1476 / 0 |
+| `0x080357c0` | `arm_fir_f32` | 1224 / 0 |
+| `0x08034d7c` | `arm_cfft_radix8by4_f32` | 1194 / 16 |
+| `0x08035364` | `arm_fir_interpolate_f32` | 1080 / 0 |
+| `0x08035c88` | `arm_fir_decimate_f32` | 888 / 0 |
+| `0x08036000` | `arm_biquad_cascade_df1_f32` | 414 / 0 |
+| `0x080361a0` | `arm_cmplx_mag_f32` | 444 / 20 |
+| `0x08034bd8` | `arm_cfft_radix8by2_f32` | 412 / 8 |
+| `0x08035238` | `arm_cfft_f32` | 226 / 16 |
+| `0x08034b08` | `arm_max_f32` | 208 / 0 |
+| `0x08036478` | `arm_scale_f32` | 108 / 0 |
+| `0x080364e4` | `arm_abs_f32` | 108 / 0 |
+| `0x08034aa8` | `arm_copy_f32` | 94 / 0 |
+| `0x08034a6c` | `arm_fill_f32` | 60 / 0 |
+| `0x0803532c` | `arm_fir_interpolate_init_f32` * | 50 / 4 |
+| `0x0803579c` | `arm_fir_init_f32` * | 30 / 4 |
+
+`*` The two `_init` routines are byte-identical across the CMSIS `_f32`,
+`_q31`, and `_q15` type variants (they only fill an instance struct), so
+object code alone cannot select the suffix. The `_f32` variant is named
+because the surrounding path is float: function body VERIFIED, type suffix
+HIGH CONFIDENCE.
+
+This confirms and extends the earlier candidate table: `arm_fir_*`,
+`arm_biquad_cascade_df1_f32`, `arm_cmplx_mag_f32`, and `arm_scale_f32` are
+now VERIFIED, and the CFFT/radix-8 kernels, `arm_abs/copy/fill/max_f32`,
+and the FIR init routines are newly identified.
+
+Full machine-readable results are in
+`analysis/dsp_primitives/cmsis_dsp_v1230_matches.csv`.
+
+### Identification tool
+
+`tools/identify_lib_functions.py` performs relocation-aware signature
+matching between an analyzed image and a static `.a` library, scoring each
+firmware function against every library symbol in the interval [0, 1]:
+
+```sh
+python3 tools/identify_lib_functions.py \
+    --image X6100_BBFW_V1.1.9_251127001.bin \
+    --functions analysis/memory/function_ranges.csv \
+    --lib .../STM32Cube_FW_F4_V1.23.0/Drivers/CMSIS/Lib/GCC/libarm_cortexM4lf_math.a
+```
+
+For each library symbol it reads the exact `.text.<name>` bytes and the ELF
+relocations inside them, masks the four-byte field at every code relocation
+(BL/B.W targets, MOVW/MOVT address halves, ABS32 literal-pool words), and
+compares the remaining invariant bytes against `N` bytes at each firmware
+function entry. Confidence is the invariant-byte match ratio; matches with
+fewer than `--min-invariant` invariant bytes are gated out as trivial, and
+ambiguous ties are flagged. The method is sound because the same GCC/linker
+produced both sides, so instruction encodings and literal-pool layout are
+identical apart from the relocated fields; a positive control that
+synthesises an image from the library's own bytes matches every function at
+1.000. The proprietary ST library is not committed; it is identified above
+by SHA-256.
+
 ## Call-graph tooling
 
 `ghidra_scripts/ExportCallGraph.java` exports every direct call as:
@@ -124,4 +215,6 @@ does not rename or modify the program.
 
 - `analysis/callgraph.csv`;
 - `analysis/interrupts/irq_14_DMA1_Stream3_08024528_disassembly.txt`;
-- `ghidra_scripts/ExportCallGraph.java`.
+- `ghidra_scripts/ExportCallGraph.java`;
+- `analysis/dsp_primitives/cmsis_dsp_v1230_matches.csv`;
+- `tools/identify_lib_functions.py` (against the SHA-256-identified V1.23.0 library).
