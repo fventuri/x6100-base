@@ -288,7 +288,7 @@ def main():
             "sym_len": lf.length,
             "fw_len": fw.length,
             "lib_object": lf.obj,
-            "flags": ",".join(f for f, on in
+            "flags": ";".join(f for f, on in
                               (("ambiguous", ambiguous), ("trivial", trivial)) if on),
         })
 

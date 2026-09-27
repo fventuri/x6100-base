@@ -1,0 +1,97 @@
+library,fw_addr,symbol,confidence,invariant_bytes,sym_len
+cmsis_dsp (CubeF4 V1.23.0),0x08036550,arm_radix8_butterfly_f32,1.0000,1476,1476
+cmsis_dsp (CubeF4 V1.23.0),0x080357c0,arm_fir_f32,1.0000,1224,1224
+cmsis_dsp (CubeF4 V1.23.0),0x08034d7c,arm_cfft_radix8by4_f32,1.0000,1194,1210
+cmsis_dsp (CubeF4 V1.23.0),0x08035364,arm_fir_interpolate_f32,1.0000,1080,1080
+cmsis_dsp (CubeF4 V1.23.0),0x08035c88,arm_fir_decimate_f32,1.0000,888,888
+cmsis_dsp (CubeF4 V1.23.0),0x080361a0,arm_cmplx_mag_f32,1.0000,444,464
+cmsis_dsp (CubeF4 V1.23.0),0x08036000,arm_biquad_cascade_df1_f32,1.0000,414,414
+cmsis_dsp (CubeF4 V1.23.0),0x08034bd8,arm_cfft_radix8by2_f32,1.0000,412,420
+cmsis_dsp (CubeF4 V1.23.0),0x08035238,arm_cfft_f32,1.0000,226,242
+cmsis_dsp (CubeF4 V1.23.0),0x08034b08,arm_max_f32,1.0000,208,208
+cmsis_dsp (CubeF4 V1.23.0),0x08036478,arm_scale_f32,1.0000,108,108
+cmsis_dsp (CubeF4 V1.23.0),0x080364e4,arm_abs_f32,1.0000,108,108
+cmsis_dsp (CubeF4 V1.23.0),0x08034aa8,arm_copy_f32,1.0000,94,94
+cmsis_dsp (CubeF4 V1.23.0),0x08034a6c,arm_fill_f32,1.0000,60,60
+cmsis_dsp (CubeF4 V1.23.0),0x0803532c,arm_fir_interpolate_init_q31,1.0000,50,54
+cmsis_dsp (CubeF4 V1.23.0),0x0803579c,arm_fir_init_q31,1.0000,30,34
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038058,_dtoa_r,1.0000,2508,2952
+newlib-nano libc (ST gnu-tools 12.3.1),0x08036c54,_printf_float,1.0000,1044,1108
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ae04,__gethex,1.0000,928,1056
+newlib-nano libc (ST gnu-tools 12.3.1),0x080373c4,_scanf_float,1.0000,916,1064
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a750,_vfprintf_r,1.0000,496,560
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037184,_printf_i,1.0000,472,576
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a504,_svfprintf_r,1.0000,456,504
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039088,__multiply,1.0000,324,340
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037a60,setvbuf,1.0000,312,360
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803b270,__hexnan,1.0000,298,310
+newlib-nano libc (ST gnu-tools 12.3.1),0x080393a0,__mdiff,1.0000,272,296
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037f48,quorem,1.0000,268,272
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a980,__sflush_r,1.0000,260,264
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a354,_strtol_l.constprop.0,1.0000,236,244
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038cc8,_malloc_r,1.0000,228,256
+newlib-nano libc (ST gnu-tools 12.3.1),0x080370a8,_printf_common,1.0000,218,218
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039290,__lshift,1.0000,196,216
+newlib-nano libc (ST gnu-tools 12.3.1),0x08036b14,__cvt,1.0000,190,202
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ad34,rshift,1.0000,164,164
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a44c,__ssputs_r,1.0000,162,182
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037d74,__swsetup_r,1.0000,156,172
+newlib-nano libc (ST gnu-tools 12.3.1),0x080395a8,__d2b,1.0000,148,176
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039514,__b2d,1.0000,144,148
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038be0,_free_r,1.0000,136,148
+newlib-nano libc (ST gnu-tools 12.3.1),0x08036bde,__exponent,1.0000,116,116
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038ea4,__multadd,1.0000,116,140
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037cf6,__swbuf_r,1.0000,108,124
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ab24,__smakebuf_r,1.0000,108,120
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037bc8,snprintf,1.0000,96,104
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039002,__lo0bits,1.0000,90,90
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039658,__ratio,1.0000,88,100
+newlib-nano libc (ST gnu-tools 12.3.1),0x080394c8,__ulp,1.0000,76,76
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803aad8,__swhatbuf_r,1.0000,72,76
+newlib-nano libc (ST gnu-tools 12.3.1),0x080396bc,__copybits,1.0000,70,70
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803b3ca,_realloc_r,1.0000,68,92
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039702,__any_on,1.0000,66,66
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803aa88,_fflush_r,1.0000,64,80
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038fc4,__hi0bits,1.0000,62,62
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037c30,sprintf,1.0000,56,64
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039368,__mcmp,1.0000,54,54
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038c84,sbrk_aligned,1.0000,52,68
+newlib-nano libc (ST gnu-tools 12.3.1),0x08038e60,_Bfree,1.0000,52,68
+newlib-nano libc (ST gnu-tools 12.3.1),0x08039744,sulp,1.0000,52,60
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ac04,memmove,1.0000,52,52
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a6fc,__sfputc_r,1.0000,42,46
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803add8,__hexdig_fun,1.0000,42,42
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803b248,__match,1.0000,40,40
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ac38,strncmp,1.0000,36,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803b224,L_shift,1.0000,36,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037cca,__sseek,1.0000,32,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803a72a,__sfputs_r,1.0000,32,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ad0c,_calloc_r,1.0000,32,40
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037c70,__sread,1.0000,30,34
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037904,__sinit,1.0000,28,48
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037970,printf,1.0000,28,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037e58,_fcntl_r,1.0000,28,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037e7c,_fcntl_r,1.0000,28,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x08037f1e,memcpy,1.0000,28,28
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ac5c,_fstat_r,1.0000,28,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803b440,fprintf,1.0000,28,36
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803ac80,_close_r,1.0000,24,32
+newlib-nano libc (ST gnu-tools 12.3.1),0x0803aca0,_close_r,1.0000,24,32
+libm (ST gnu-tools 12.3.1),0x0803c810,__kernel_rem_pio2f,1.0000,1222,1250
+libm (ST gnu-tools 12.3.1),0x0803b5d8,powf,1.0000,138,174
+libm (ST gnu-tools 12.3.1),0x0803b6c4,cosf,1.0000,112,136
+libm (ST gnu-tools 12.3.1),0x0803b57c,log10f,1.0000,72,92
+libm (ST gnu-tools 12.3.1),0x0803b688,sqrtf,1.0000,52,60
+libgcc (ST gnu-tools 12.3.1),0x08020e04,__udivmoddi4,1.0000,698,698
+libgcc (ST gnu-tools 12.3.1),0x0802036c,__adddf3,1.0000,630,630
+libgcc (ST gnu-tools 12.3.1),0x08020cc8,__truncdfsf2,1.0000,158,158
+libgcc (ST gnu-tools 12.3.1),0x08020b0c,__cmpdf2,1.0000,122,122
+libgcc (ST gnu-tools 12.3.1),0x0802067c,__floatdidf,1.0000,90,90
+libgcc (ST gnu-tools 12.3.1),0x08020c38,__fixdfsi,1.0000,78,78
+libgcc (ST gnu-tools 12.3.1),0x08020628,__extendsfdf2,1.0000,66,66
+libgcc (ST gnu-tools 12.3.1),0x08020c88,__fixunsdfsi,1.0000,64,64
+libgcc (ST gnu-tools 12.3.1),0x08020c0c,__unorddf2,1.0000,44,44
+libgcc (ST gnu-tools 12.3.1),0x08020dc8,__fixunsdfdi,1.0000,36,60
+libgcc (ST gnu-tools 12.3.1),0x08020604,__floatsidf,1.0000,34,34
+libgcc (ST gnu-tools 12.3.1),0x08020d98,__fixdfdi,1.0000,34,46
+libgcc (ST gnu-tools 12.3.1),0x080205e4,__floatunsidf,1.0000,30,30

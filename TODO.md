@@ -139,6 +139,11 @@ only as evidence boundaries, not as planned tasks.
     primitives (FIR/decimate/interpolate, biquad DF1, CFFT + radix-8,
     cmplx_mag, scale/abs/copy/fill/max, FIR init) by exact object-code
     identity. See `docs/dsp_primitives.md`.
+-   [x] Identify the build toolchain and remaining library code: **ST
+    `gnu-tools-for-stm32` GCC 12.3.1 + newlib-nano** (swept vs GCC 7/8/9/10/11/13;
+    only ST matches full libc/libm). VERIFY 96/456 firmware functions as stock
+    library code (16 CMSIS-DSP + 62 newlib-nano libc + 5 libm + 13 libgcc),
+    isolating ~360 application functions. See `docs/library_functions.md`.
 
 ### RX
 
