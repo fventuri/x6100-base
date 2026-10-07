@@ -163,6 +163,12 @@ Recovering the exact mechanism requires a dump or executable image of
 `0x08000000`–`0x0801FFFF`. It is not recoverable from either supplied
 application binary or the Linux ELF: VERIFIED evidence boundary.
 
+**UPDATE (2026-10-07): this region has now been dumped from live hardware** —
+see `analysis/iap/base_bootloader_0x08000000-0x0801FFFF.bin` (128 KiB, reset
+handler `0x08001990`) and `analysis/iap/README_bootloader_dump.md` for
+provenance. The boot-resident greeting/XMODEM/app-entry code can now be
+analysed directly rather than left as an evidence boundary.
+
 ## Independent updater checklist
 
 1. Open the BASE UART and stop its normal packet consumer.

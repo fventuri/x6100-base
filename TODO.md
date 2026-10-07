@@ -100,6 +100,11 @@ only as evidence boundaries, not as planned tasks.
 -   [x] Bound BASE IAP post-transfer behavior: Linux sends no command
     after EOT ACK, and the exact jump/reset path resides in the missing
     `0x08000000`–`0x0801FFFF` boot-resident range
+-   [x] Dump the `0x08000000`–`0x0801FFFF` boot-resident range from live
+    hardware (`analysis/iap/base_bootloader_0x08000000-0x0801FFFF.bin`)
+-   [ ] Analyse the dumped IAP bootloader (reset handler `0x08001990`):
+    greeting emission, 1K-XMODEM receiver, erase/program, and the
+    post-EOT application-entry mechanism
 -   [x] Verify ATU tune flag and Linux boot handshake
 -   [x] Recover UART flow packet layout and metadata producers
 -   [x] Trace `vfoa_freq`/`vfob_freq` through LO synthesizer programming
