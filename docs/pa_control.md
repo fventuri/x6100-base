@@ -210,7 +210,7 @@ The levels are an exact match for active-high enables of `+5R` and
 
 | GPIO | Candidate physical role | Confidence |
 | --- | --- | --- |
-| PD3 | `+5R` receive-rail enable | HIGH CONFIDENCE |
+| PD3 | front-panel power/charge LED (active-high) — supersedes the earlier `+5R` receive-rail reading | VERIFIED on hardware |
 | PD4 | `+5T` transmit-rail enable | HIGH CONFIDENCE |
 
 The external rail behavior is documented by the

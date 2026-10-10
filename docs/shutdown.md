@@ -64,7 +64,7 @@ VERIFIED.
 | Signal | Recovered behavior | Interpretation | Confidence |
 |---|---|---|---|
 | PD4 | low before the five-second delay | `+5T` transmit-rail disable | HIGH CONFIDENCE role; VERIFIED level |
-| PD3 | low after the five-second delay | `+5R` receive-rail disable | HIGH CONFIDENCE role; VERIFIED level |
+| PD3 | low after the five-second delay | power/charge LED off at power-down (PD3 = power LED, VERIFIED on hardware; supersedes the `+5R` rail reading) | VERIFIED level |
 | PD2 | low after the additional three-second delay | remaining support-power or power-hold disable | HIGH CONFIDENCE role; exact net unresolved |
 | PG4 | input awaited high before final reset | power/status feedback | HIGH CONFIDENCE role; exact source unresolved |
 | PE11 | cleared before and after the PG4 wait | member of PA/power shutdown state | VERIFIED behavior; exact individual net unresolved |

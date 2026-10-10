@@ -134,7 +134,7 @@ names are not yet known:
 | PD4 | complementary partner of PD3; candidate `+5T` TX rail enable | HIGH CONFIDENCE role; VERIFIED levels |
 | PE2 | candidate ACC `TRX`; low in RX and high in TX | HIGH CONFIDENCE role; VERIFIED levels |
 | PD2 | final output cleared after PD4/PD3 delays when register `0x0030` bit 16 requests shutdown | VERIFIED behavior; HIGH CONFIDENCE support-power/power-hold role |
-| PD3, PD4 | sequenced low during shutdown; candidate `+5R`/`+5T` enables | VERIFIED levels; HIGH CONFIDENCE rail roles |
+| PD3, PD4 | sequenced low during shutdown (PD3 = power LED off at power-down, VERIFIED; PD4 candidate `+5T`) | VERIFIED levels |
 | PF11 | configured as output and held high by the charger/battery startup loop; exact net unknown | VERIFIED behavior |
 | PF12 | active-high runtime charger enable; also mirrors the expander-backed variant | HIGH CONFIDENCE role; VERIFIED levels |
 | PE13 | sampled by the charger/battery startup loop as part of its full/charging decision | VERIFIED behavior; physical net unresolved |
