@@ -134,7 +134,8 @@ does not use IWDG or WWDG: VERIFIED. See `docs/interrupts.md`,
 | Function | Resource and active behavior | Lifecycle | Confidence |
 | --- | --- | --- | --- |
 | ACC `TRX` | PE2: RX low, TX high | RX/TX | HIGH CONFIDENCE role; VERIFIED levels |
-| receive/transmit rails | PD3/PD4: RX `1/0`, TX `0/1` | RX/TX/shutdown | HIGH CONFIDENCE `+5R/+5T`; VERIFIED levels |
+| power/charge LED | PD3 high = on (toggled while charging, solid when full) | charge indication | VERIFIED on hardware |
+| transmit rail? | PD4 (complement of PD3): RX `0`, TX `1` | RX/TX/shutdown | HIGH CONFIDENCE `+5T`; VERIFIED levels. PD3's old `+5R` role superseded by the LED finding — pair mapping needs re-examination |
 | PA enable tuple | PE8/PE9/PG11/callback: enabled `1/0/1/1` | TX and calibration | VERIFIED tuple; HIGH CONFIDENCE aggregate role |
 | CW RF envelope | PE12 active-low per sample | CW transmit | HIGH CONFIDENCE role; VERIFIED behavior |
 | codec reset | PE15 active-low | audio startup | HIGH CONFIDENCE role; VERIFIED lifecycle |
@@ -263,7 +264,8 @@ identifying every package or schematic net. The following still require
 board measurements and must remain descriptive:
 
 - PF11 and PE13 physical nets;
-- reason for PD3 reuse in the early charge loop;
+- PD3/PD4 `+5R/+5T` pair mapping, now that PD3 is confirmed as the power/charge
+  LED (its early-loop "reuse" is the LED's charge indication);
 - exact functions of the `0x4A` support device and `0x4C` hardware;
 - individual PA-enable and RF-relay net names;
 - PC4/ADC2 channel 14 and several debounced input sources.

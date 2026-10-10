@@ -158,11 +158,13 @@ callback selects active-low PCA9535 bit 1 or active-high PF12 according
 to hardware variant: HIGH CONFIDENCE role; VERIFIED levels and
 backends. Full ordering and thresholds are in `docs/charger.md`.
 
-The startup battery loop also manipulates PD3, while later RX/TX code
-uses PD3 in the complementary PD3/PD4 pair. Whether this is deliberate
-time-multiplexing, a shared rail/control function, or an incomplete
-physical interpretation remains unresolved: HYPOTHESIS alternatives;
-VERIFIED overlapping firmware accesses.
+PD3 drives the front-panel **power/charge LED** (active-high): VERIFIED on
+hardware by externally driving PD3 high (LED on) and low (LED off) with the
+radio idle. The startup battery loop's toggle-while-charging / high-when-full
+use of PD3 is therefore the LED's blink/solid charge indication. This supersedes
+the earlier reading of PD3 as the `+5R` receive rail; the complementary PD3/PD4
+RX/TX pattern seen in later code still needs re-examination (PD4 / `+5T`
+untested): VERIFIED PD3 = power LED; HYPOTHESIS for the remaining +5R/+5T mapping.
 
 The precise RX/TX levels and ordering of the PA-related group, and the
 I2C1 bias-control device associated with PE10, are documented in
