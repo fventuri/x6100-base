@@ -130,7 +130,8 @@ names are not yet known:
 | PE10 | low-delay-high pulse after external PA-bias device writes | VERIFIED |
 | PE8, PE9, PG11 and variant callback | PA calibration and normal TX enable subset | HIGH CONFIDENCE role; VERIFIED levels |
 | PE12 | per-sample active-low CW/RF envelope output; otherwise forced high | HIGH CONFIDENCE role; VERIFIED behavior |
-| PD3 / PD4 | complementary RX/TX outputs; candidate `+5R` / `+5T` rail enables | HIGH CONFIDENCE roles; VERIFIED levels |
+| PD3 | drives the front-panel **power/charge LED**, active-high (externally driving PD3 high lit the LED, low turned it off; radio idle) — supersedes the earlier `+5R` rail-enable guess for PD3 | VERIFIED on hardware |
+| PD4 | complementary partner of PD3; candidate `+5T` TX rail enable | HIGH CONFIDENCE role; VERIFIED levels |
 | PE2 | candidate ACC `TRX`; low in RX and high in TX | HIGH CONFIDENCE role; VERIFIED levels |
 | PD2 | final output cleared after PD4/PD3 delays when register `0x0030` bit 16 requests shutdown | VERIFIED behavior; HIGH CONFIDENCE support-power/power-hold role |
 | PD3, PD4 | sequenced low during shutdown; candidate `+5R`/`+5T` enables | VERIFIED levels; HIGH CONFIDENCE rail roles |

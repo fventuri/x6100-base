@@ -176,7 +176,9 @@ within the analyzed call paths.
    `FULL`;
 6. classify full when the recovered capacity-like value is at least
    `1800.0` or PE13 is low;
-7. toggle PD3 on charging samples and force PD3 high in the full state;
+7. toggle PD3 on charging samples and force PD3 high in the full state
+   (PD3 drives the front-panel power/charge LED — blink while charging,
+   solid when full);
 8. leave PF11 high on exit.
 
 GPIO configuration, levels, calls, comparisons, and ordering are
@@ -184,12 +186,16 @@ VERIFIED. PE13 is an input to the early full decision, not the charger
 enable. Its exact electrical source is unresolved.
 
 PF11 is written as an output; it is not read by this loop. Its physical
-net remains HYPOTHESIS. PD3 is demonstrably reused during this early
-phase even though normal operation drives it as the receive-side member
-of the complementary PD3/PD4 pair. Whether the early toggling indicates
-charge status, deliberately cycles a receive rail, or reflects an
-incomplete board-level interpretation is unresolved: VERIFIED overlap;
-HYPOTHESIS alternatives.
+net remains HYPOTHESIS. PD3 drives the front-panel **power/charge LED**
+(active-high): confirmed on hardware by externally driving PD3 high (LED
+on) and low (LED off) with the radio idle. This resolves the early
+toggle-while-charging / high-when-full behaviour as the LED's blink/solid
+charge indication, and supersedes the earlier interpretation of PD3 as
+the `+5R` receive rail. The complementary PD3/PD4 RX/TX pattern in normal
+operation therefore needs re-examination (PD4 / `+5T` untested here): the
+power LED tracking RX/TX would be unusual, so either the `+5R`-rail model
+for PD3 was an overinterpretation of the toggling or the nets differ:
+VERIFIED PD3=power LED; HYPOTHESIS for the remaining +5R/+5T mapping.
 
 PF13 has no charger role. It is consumed by the TIM3 telegraph-key
 input path: VERIFIED separation.

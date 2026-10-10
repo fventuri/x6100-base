@@ -3,7 +3,7 @@ early_setup,PF11,configure output then write BSRRL,high,early power or status co
 early_setup,PF12,configure output then write BSRRH,low,charger initially disabled,HIGH CONFIDENCE role; VERIFIED level
 early_setup,PE13,configure input,sampled low,"one of the early ""full"" conditions; exact net unknown",VERIFIED behavior
 early_setup,PG4,configure input,sampled by boot and shutdown conditions,power or boot status; exact net unknown,VERIFIED behavior
-early_setup,PD3,configure output,toggled while charging and forced high when full,early charge indication or rail reuse; exact reason unknown,VERIFIED behavior; HYPOTHESIS role
+early_setup,PD3,configure output,toggled while charging and forced high when full,front-panel power/charge LED (active-high) - blink while charging, solid when full,VERIFIED on hardware (external drive lit/cleared the LED)
 early_setup,PD4,configure output,initial low,normal complementary TX rail control later,VERIFIED level; HIGH CONFIDENCE later role
 policy_restore,PF12,direct ODR read-modify-write,saved policy bit,restore initial charger request,HIGH CONFIDENCE role; VERIFIED operation
 policy_restore,callback 0x2000C6C8,invoke with saved policy,"PCA9535 bit 1 active-low or PF12 active-high",board-variant charger control,HIGH CONFIDENCE role; VERIFIED backends and polarity
