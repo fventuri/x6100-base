@@ -139,6 +139,8 @@ does not use IWDG or WWDG: VERIFIED. See `docs/interrupts.md`,
 | PA enable tuple | PE8/PE9/PG11/callback: enabled `1/0/1/1` | TX and calibration | VERIFIED tuple; HIGH CONFIDENCE aggregate role |
 | CW RF envelope | PE12 active-low per sample | CW transmit | HIGH CONFIDENCE role; VERIFIED behavior |
 | codec reset | PE15 active-low | audio startup | HIGH CONFIDENCE role; VERIFIED lifecycle |
+| internal-speaker / HPR enable | PG1 high (reconfigured input→output at startup step 3) | audio | HIGH CONFIDENCE role; VERIFIED on hardware (bench bisection 2026-10-16) — HPR silent without it despite OEM-identical codec regs |
+| speaker loudness | PG0 high (with PG1) | audio | HIGH CONFIDENCE role; VERIFIED on hardware — PG0 alone silent, PG0+PG1 much louder than PG1 alone |
 | PA-bias commit | PE10 low-delay-high | changed bias write | HIGH CONFIDENCE role; VERIFIED waveform |
 | charger enable | PF12 high or PCA9535 bit 1 low | startup/runtime | HIGH CONFIDENCE role; VERIFIED levels |
 | shutdown request | register `0x0030` bit 16 exits superloop; PD4 low, 5 s, PD3 low, 3 s, PD2 low; wait PG4 high | controlled shutdown | VERIFIED sequence; HIGH CONFIDENCE PD2 power-hold and PG4 feedback roles |

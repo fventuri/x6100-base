@@ -215,7 +215,11 @@ direct writes. The relevant ordered state is:
 
 1. PE15 low and PG8 output latch low before audio/IQ startup;
 2. initialize timers and main runtime state;
-3. drive PG0 and PG1 high;
+3. drive PG0 and PG1 high (both reconfigured from inputs to outputs here;
+   external bench bisection 2026-10-16 identified **PG1 = internal-speaker /
+   HPR output enable** and **PG0 = speaker loudness** — see `docs/gpio.md`.
+   Without this write the BASE codec's HPR output is silent even with
+   OEM-identical codec registers);
 4. call the installed hardware-variant callback with argument `1`;
 5. drive PD2 high and PF11 low;
 6. set both PA-bias device channels to zero;

@@ -45,6 +45,18 @@ PG0 and PG8 are configured with pull-downs; PG1 and PG11 with pull-ups:
 VERIFIED. Other pull and output-type details should be checked pin by
 pin before being copied into an independent implementation.
 
+**PG0 and PG1 are later reconfigured from inputs to outputs and driven
+high** by the startup sequence (`FUN_08034178` step 3; see
+`docs/startup.md`). Their function is now known from an external bench
+bisection (dev firmware drove individual GPIOs while listening to the
+internal speaker, 2026-10-16): **PG1 = internal-speaker / HPR output
+enable** (required — PG1 alone restores sound; the BASE codec's HPR
+analog output stays silent without it even when every codec register
+matches the OEM), and **PG0 = speaker loudness** (a gain / second-stage /
+rail: PG0 alone gives no sound, but PG0+PG1 is markedly louder than PG1
+alone). HIGH CONFIDENCE roles; VERIFIED on hardware (bench). This names two
+startup GPIO writes whose purpose was previously unrecovered.
+
 `FUN_080244b4` clears and later sets GPIOG ODR bit 8 around audio/IQ
 startup. PG8 remains configured as an input throughout this sequence,
 and no later output-mode configuration was found: VERIFIED. These ODR
@@ -140,6 +152,8 @@ names are not yet known:
 | PE13 | sampled by the charger/battery startup loop as part of its full/charging decision | VERIFIED behavior; physical net unresolved |
 | PF15 | sampled with S/P mode; stable low state enables 0.05 receive-audio gain | VERIFIED behavior; HIGH CONFIDENCE S/P jack detect |
 | PG8 | input; ODR latch changes during audio startup but does not drive the pad | VERIFIED |
+| PG1 | reconfigured input→output and driven high at startup; **internal-speaker / HPR output enable** — HPR analog output is silent without it even when codec registers match the OEM | HIGH CONFIDENCE role; VERIFIED on hardware (bench bisection 2026-10-16) |
+| PG0 | reconfigured input→output and driven high at startup alongside PG1; **speaker loudness** (gain/2nd-stage/rail) — PG0 alone = no sound, PG0+PG1 markedly louder than PG1 alone | HIGH CONFIDENCE role; VERIFIED on hardware (bench) |
 | PG11, PG12 | changed by startup, peripheral-reset, PA, or power-management paths | VERIFIED |
 
 PB2 is a timing/debug marker candidate because it brackets the complete
