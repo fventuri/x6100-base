@@ -243,6 +243,32 @@ PF12/PCA9535 binary charger-enable path: VERIFIED separation.
 The reusable Ghidra exports are stored beside the machine-readable
 sequence in `analysis/charger/`.
 
+## Battery-management pin cluster and G90 cross-reference
+
+The battery-management subsystem is X6100-specific. It is built from the
+MAX17205 fuel gauge on I2C1 (PB6/PB7) plus a discrete GPIO cluster that
+the early service loop configures together:
+
+| Pin | BMS role | Confidence | Open question |
+| --- | --- | --- | --- |
+| PB6/PB7 (I2C1) | MAX17205 fuel-gauge bus | VERIFIED | — |
+| PF12 | charger enable (or PCA9535 bit 1 variant) | HIGH CONFIDENCE role | exact net |
+| PE13 | input to the "battery full" decision (full when low) | VERIFIED behavior | likely charger status / CHG-done / DC-in; net unknown |
+| PF11 | driven and held high across the loop, never read | VERIFIED behavior | candidate charger/battery power-path or load-switch enable; HYPOTHESIS |
+| PG4 | sampled in run, awaited high before power-down handoff | HIGH CONFIDENCE power/status feedback | likely supply-present / power-good supervisor |
+| PD3 | front-panel power/charge LED (blink/solid) | VERIFIED on hardware | — |
+| PD4 | configured low with the cluster; `+5T` candidate | HIGH CONFIDENCE levels | rail identity |
+
+The related Xiegu G90 has **no battery-management hardware at all** (no
+fuel gauge, charger IC, or battery connector appears anywhere in its
+schematics). On the shared STM32F4 pinout, PF11, PF12, PE13, and PG4 are
+all unused/unconnected on the G90. That the exact pins the X6100 firmware
+spends on battery management are the ones its BMS-less sibling leaves
+blank is consistent with (though does not by itself prove) their BMS
+role: the firmware call-path membership remains the primary evidence.
+See `docs/g90_comparison.md`. PE13 and PG4 are good bench-probe
+candidates against the charger IC's STAT/PG pins.
+
 ## Independent implementation guidance
 
 A compatible implementation needs:

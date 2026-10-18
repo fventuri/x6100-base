@@ -130,10 +130,23 @@ comparison is not over-read:
 - **PB9** — X6100 TX-source/`HPTT` input; on the G90 PB9 is `PWR_KEY`.
 - **PD12** (X6100 TIM4 hardware-key waveform), **PG15** (X6100 TIM2-sampled
   input; G90 `1LO_FSYNC`) — different roles.
-- **Power/charger rails**: the X6100's open pins **PF11, PE13, PD4
-  (+5T?), PE2 (TRX?), PG4 (power feedback), PB2, PG11** land on G90 pins
-  that are either unused or carry G90-specific superhet signals. The G90
-  therefore does **not** resolve the X6100 charger/power-rail block.
+- **Battery management (BMS)**: the X6100 is battery-powered; the G90 is
+  external-supply only and has **no BMS hardware whatsoever** — no fuel
+  gauge, charger IC, or battery/cell connector appears on any G90 sheet.
+  The X6100 firmware builds its BMS from the MAX17205 fuel gauge on I2C1
+  (PB6/PB7, shared and confirmed) plus a discrete cluster: **PF12**
+  (charger enable), **PE13** (full-detect input), **PF11** (held-high
+  output), **PG4** (power-good/present feedback). On the shared pinout
+  these four are all unused on the G90. That the exact pins the X6100
+  firmware spends on battery management are the ones its BMS-less sibling
+  leaves blank is *consistent with* a BMS role, but is corroboration by
+  absence, not proof; the firmware call-path membership (`FUN_08032500`,
+  `docs/charger.md`) is the real evidence. The G90 cannot name these nets
+  because it has nothing to wire them to.
+- **Power/charger rails**: the X6100's open pins **PD4 (+5T?), PE2
+  (TRX?), PB2, PG11** land on G90 pins that are either unused or carry
+  G90-specific superhet signals. The G90 therefore does **not** resolve
+  the X6100 charger/power-rail block.
 - No `+5R` / `+5T` rail names appear anywhere in the G90 schematic; that
   X6100 guess is not supported or refuted here. G90 power rails are
   `+13.8`, `+9`, `+5`, `+3.3`.
