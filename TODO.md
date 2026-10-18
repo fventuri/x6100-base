@@ -78,6 +78,20 @@ only as evidence boundaries, not as planned tasks.
 -   [x] Map the runtime `0x36`/512-byte MAX17205 snapshot, its four
     consumed registers, failure behavior, cadence, and Linux fields
 
+### G90 comparative reference
+
+-   [x] Cross-reference the public Xiegu G90 schematics against the BASE
+    MCU: confirm identical STM32F4 LQFP144 pinout and shared bus/codec/
+    band-SPI pin assignments (`docs/g90_comparison.md`,
+    `analysis/g90/g90_ssig_mcu_pinmap.csv`)
+-   [x] Confirm PG12/PG13/PG14 24-bit output image = G90 B_LATCH/B_SCK/
+    B_DATA driving cascaded 74HC595 relay/filter chain (HIGH CONFIDENCE)
+-   [x] Corroborate PA5/DAC2 as a band-dependent tuning voltage (G90
+    PRESELV) and note PA4/DAC1 candidate PA bias drive (G90 BV_DRV)
+-   [ ] G90 does not resolve the BASE charger/power-rail pins (PF11,
+    PE13, PD4, PE2, PG4, PB2, PG11); these remain X6100-specific
+    evidence boundaries pending the X6100 schematic or bench work
+
 ## RTOS
 
 -   [x] Identify bare-metal superloop; no RTOS scheduler (HIGH CONFIDENCE)
@@ -253,6 +267,7 @@ only as evidence boundaries, not as planned tasks.
 -   [x] rx_pipeline.md (input, correction, mode demodulation, AGC,
     rate conversion, and documented remaining work)
 -   [x] tx_pipeline.md (initial mode handoff and input-gain stages)
+-   [x] g90_comparison.md (external G90-schematic cross-reference)
 
 ## Milestone 1
 

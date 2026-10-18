@@ -1,0 +1,58 @@
+port,pin,net,category,notes
+# Xiegu G90 SSIG board (G90-SSIGBD-2.0.6-GAI03) main MCU: STM32F4 144-pin LQFP.
+# Pin numbers verified against the canonical STM32F40x/41x/42x/43x Zx LQFP144 pinout.
+# Nets extracted from the schematic PDF (pin-number tokens paired with nearest net
+# label by coordinates; every entry also appears twice in reading-order text).
+# Blank/omitted MCU pins are either power/NC or carried no confidently paired label.
+PA0,34,VIN_SMP,analog,input-voltage sample
+PA1,35,PO_FWD,analog,forward-power detector
+PA2,36,PO_REV,analog,reverse/reflected-power detector
+PA4,40,BV_DRV,analog-out,bias-voltage drive (DAC/PWM)
+PA5,41,PRESELV,analog-out,preselector tuning voltage (band/freq dependent)
+PA8,100,I2C3_SCL,bus,I2C3 clock (AF4)
+PA9,101,USART1_TX,bus,USART1 TX (AF7)
+PA10,102,USART1_RX,bus,USART1 RX (AF7)
+PA11,103,BEEP,audio,sidetone/beep
+PA12,104,SPK_SEL,audio,speaker select (internal/external)
+PA13,105,SWDIO,debug,SWD data
+PA14,109,SWCLK,debug,SWD clock
+PB3,133,SPI1_SCK,bus,SPI1 clock (LO synth)
+PB4,134,1LO_LE,rf,first-LO PLL latch enable
+PB5,135,SPI1_MOSI,bus,SPI1 data (LO synth)
+PB6,136,I2C1_SCL,bus,I2C1 clock (AF4)
+PB7,137,I2C1_SDA,bus,I2C1 data (AF4)
+PB8,139,PWR_EN2,power,secondary power enable
+PB9,140,PWR_KEY,power,front-panel power key (input)
+PB10,69,CODEC_SCL,bus,I2C codec clock (= STM32 I2C2_SCL)
+PB11,70,CODEC_SDA,bus,I2C codec data (= STM32 I2C2_SDA)
+PB12,73,I2S2_LRCK,audio,I2S2 word select
+PB13,74,I2S2_SCLK,audio,I2S2 bit clock
+PB14,75,I2S2_SDOUT,audio,I2S2 ext data (full-duplex)
+PB15,76,I2S2_SDIN,audio,I2S2 data
+PC1,27,SEND,rf,TX send/keyline
+PC2,28,#PRE_EN,rf,preamp enable (active low)
+PC3,29,BPF2,rf,band-pass-filter select bit 2
+PC4,44,LO_DIV2,rf,LO divider control
+PC5,45,LO_DIV1,rf,LO divider control
+PC6,96,USART6_TX,bus,USART6 TX (AF8)
+PC7,97,USART6_RX,bus,USART6 RX (AF8)
+PC8,98,MUTE,audio,audio mute
+PC9,99,I2C3_SDA,bus,I2C3 data (AF4)
+PC10,111,I2S3_SCLK,audio,I2S3 bit clock
+PC11,112,I2S3_SDIN,audio,I2S3 data
+PC12,113,I2S3_SDOUT,audio,I2S3 data
+PC13,7,PTT_RD,rf,PTT read (input)
+PC14,8,PTT_WR,rf,PTT write/assert
+PC15,9,ATT_EN,rf,attenuator enable
+PD0,114,TRX,rf,RX/TX antenna-switch control
+PD8,77,KEYER_DOT,cw,CW paddle dot
+PD9,78,KEYER_DSH,cw,CW paddle dash
+PE1,142,PDRON,power,power-down / power-rail control
+PE14,67,CODEC_RST,audio,codec 0 reset
+PE15,68,CODEC1_RST,audio,codec 1 reset
+PF0,10,BPF0,rf,band-pass-filter select bit 0
+PF1,11,BPF1,rf,band-pass-filter select bit 1
+PG12,127,B_LATCH,rf,board-control 74HC595 latch (= X6100 SPI6 latch)
+PG13,128,B_SCK,rf,board-control 74HC595 clock (= X6100 SPI6 SCK)
+PG14,129,B_DATA,rf,board-control 74HC595 data (= X6100 SPI6 MOSI)
+PG15,132,1LO_FSYNC,rf,first-LO PLL frame sync

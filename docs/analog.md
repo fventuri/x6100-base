@@ -269,6 +269,16 @@ CONFIDENCE.
 - Do not substitute the internal DAC for the separate PA bias-control
   transaction path.
 
+## G90 schematic cross-reference
+
+The public Xiegu G90 schematics (same STM32F4 LQFP144) label PA5 as
+`PRESELV` (preselector tuning voltage), corroborating the band-dependent
+DAC2/`BAND_V` role here, and label PA4 as `BV_DRV` (bias-voltage drive),
+suggesting PA4/DAC1 is a PA bias output left unused by firmware 1.1.9
+(HYPOTHESIS). The G90 analog-sensing nets `VIN_SMP`/`PO_FWD`/`PO_REV`
+confirm the forward/reflected-power and supply-voltage vocabulary but do
+not pin-match the X6100 ADC assignments. See `docs/g90_comparison.md`.
+
 ## Remaining work
 
 - Identify the ADC2 channel 14 consumer or external role.

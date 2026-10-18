@@ -269,6 +269,16 @@ and PB9's exact physical PTT control, remain unresolved. See
   are identified.
 - Do not assign semantic GPIO names from port masks alone.
 
+## G90 schematic cross-reference
+
+An external comparison with the public Xiegu G90 schematics (same
+STM32F4 LQFP144 pinout) is documented in `docs/g90_comparison.md`. It
+confirms the shared I2C1/I2C2/I2C3, USART1/USART6, codec-I2C, and
+PG12/PG13/PG14 board-control (74HC595) assignments, and corroborates the
+PA5 band-voltage role. It does **not** resolve the BASE-specific
+charger/power-rail pins (PF11, PE13, PD4, PE2, PG4, PB2, PG11) or the
+bench-verified PG0/PG1 speaker pins.
+
 ## Remaining work
 
 - Correlate shifted RF-control bits with frequency ranges and hardware
