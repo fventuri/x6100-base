@@ -3,9 +3,16 @@
 ## Scope
 
 This document describes the firmware-visible behavior needed for an
-independent implementation. The fuel gauge is identified as MAX17205;
-the separate charger IC does not need to be identified because firmware
-controls it only through a binary enable line.
+independent implementation. The fuel gauge is identified as MAX17205 and
+the charger controller as the **TI bq24715** (2-3 cell SMBus NVDC-1 charge
+controller; SMBus 7-bit address `0x09`, on I2C1). The firmware programs the
+bq24715 once over SMBus at init (charge voltage/current, input-current limit,
+options — see "Charger configuration (bq24715 over SMBus)" below) and
+thereafter starts/stops charging through a binary enable line (PF12 / PCA9535
+bit 1). The earlier claim that the charger IC "need not be identified because
+firmware controls it only through a binary enable line" was incomplete: it
+holds for the runtime state machine but missed the one-time SMBus
+configuration.
 
 The two relevant routines are the early service loop
 `FUN_08032500` and the runtime controller `FUN_0802d878`. The exact
@@ -156,10 +163,55 @@ no hardware effect and must not be mistaken for a second charger
 device command: VERIFIED. It appears to be a reserved hook:
 HYPOTHESIS.
 
-No charger-programming register writes were found in the runtime state
-transition. The firmware-visible control contract is a binary enable
-line, not a recovered current/voltage programming protocol: VERIFIED
-within the analyzed call paths.
+No charger-programming register writes occur in the runtime state
+transition: the runtime control contract is the binary enable line (PF12 /
+PCA9535 bit 1), not a per-transition current/voltage protocol: VERIFIED.
+This is possible because the bq24715 is configured ONCE at init over SMBus
+with its watchdog disabled (ChargeOption0 bits [14:13]=00), so charging
+persists with no periodic host writes — see "Charger configuration
+(bq24715 over SMBus)" below. The earlier "not a recovered current/voltage
+programming protocol" wording described only the runtime path; the init
+path does program voltage, current, and input-current limit.
+
+## Charger configuration (bq24715 over SMBus)
+
+The charger controller is the **TI bq24715**. The stock image names it: the
+string `can't write bq24715` is at `0x0803d0d4`, loaded in five places by the
+charger-configuration routine `FUN_0802ffd0`, which issues five SMBus Write-Word
+transactions (3-byte payload `{command, data_lo, data_hi}`) and prints that
+string on any failed write: VERIFIED.
+
+`FUN_0802ffd0` is called from `FUN_0803131c` at `0x8031342`, immediately after
+that function drives **PE14 high** (GPIOE ODR bit 14) and initializes the I2C1
+master (`FUN_08031fc0`), and immediately before it initializes the MAX17205
+(`FUN_08030670`). The shared bus bring-up and PE14 enable place the bq24715 on
+**I2C1** alongside the fuel gauge: HIGH CONFIDENCE (bus-init adjacency + PE14);
+the SMBus 7-bit address is `0x09` (`0b0001001`) per the datasheet. The charger
+device object is at `0x200002AC`.
+
+The write sequence, decoded against the bq24715 datasheet (SLUSBD1B, Tables 2-7;
+10 mΩ sense resistors), is:
+
+| Order | Cmd | Register | Data | Decoded |
+| ---: | ---: | --- | ---: | --- |
+| 1 | `0x12` | ChargeOption0 | `0x0001` | bit0=1 → inhibit charge during setup |
+| 2 | `0x3F` | InputCurrent | `0x1400` | 4096+1024 = **5.120 A** input-current limit |
+| 3 | `0x15` | MaxChargeVoltage | `0x20D0` | 8192+128+64+16 = **8.400 V** (4.20 V/cell, 2S) |
+| 4 | `0x14` | ChargeCurrent | `0x0400` | bit10 = **1.024 A** |
+| 5 | `0x12` | ChargeOption0 | `0x0000` | enable charge; watchdog disabled; 600 kHz; IDPM off; SYSOVP = 10.1 V (2S) |
+
+Byte order, command values, and sequence are VERIFIED from the disassembly; the
+real-world conversions are VERIFIED against the datasheet register tables. The
+order follows the datasheet requirement (inhibit, write `0x15` before `0x14`,
+then enable). Three independent facts confirm a **2S** pack: the 8.400 V target,
+the SYSOVP = 10.1 V ("2S") option, and the measured ~8.37 V full-pack voltage.
+The disabled watchdog is why the runtime needs no periodic charger writes
+(see "Runtime charger state machine" above).
+
+This one-time SMBus configuration is SEPARATE from the runtime start/stop, which
+remains the binary PF12 / PCA9535-bit-1 enable driven by the 90/98 % SOC
+hysteresis. An OEM-identical charging implementation must reproduce BOTH: this
+init sequence and the runtime enable.
 
 ## Early boot/service loop
 
@@ -242,6 +294,16 @@ PF12/PCA9535 binary charger-enable path: VERIFIED separation.
 
 The reusable Ghidra exports are stored beside the machine-readable
 sequence in `analysis/charger/`.
+
+## Maintenance-manual note
+
+The OEM maintenance manual names the external-supply input **`VEXT`**
+(its input-protection diode is service check-point B2) — this is the
+quantity measured on ADC2 ch6 / PA6 (`× 4.835165` → mV). The manual's
+charging-control check-points (A1 = 3.28 V charging / 0 off; A2 = 0 /
+0.68 V; A3 = 6.23 V / 0 off) are analog nodes of the charger circuit the
+MCU gates via PF12; it does **not** name the MCU charger GPIO (PF12 /
+PE13 / PF11 / PG4). See `docs/maintenance_manual_findings.md`.
 
 ## Battery-management pin cluster and G90 cross-reference
 

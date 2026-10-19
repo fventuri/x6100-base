@@ -269,6 +269,18 @@ and PB9's exact physical PTT control, remain unresolved. See
   are identified.
 - Do not assign semantic GPIO names from port masks alone.
 
+## Maintenance-manual cross-reference
+
+The OEM X6100 maintenance manual (`docs/maintenance_manual_findings.md`)
+confirms `+5R` and `+5T` are real, complementary RX/TX-switched 5 V rails
+(`+5R` on in RX, `+5T` on in TX). This yields a new **HYPOTHESIS**: the
+complementary PA tuple drives them — **PE8/PG11 (high in TX) = `+5T`
+enable, PE9 (high in RX) = `+5R` enable** — benchable at rail test points
+5/6. It also means **PD4 is no longer a strong `+5T` candidate** (PD3 is
+the power/charge LED, not `+5R`). The manual further corroborates PE2 =
+ACC `TRX`, PA5/DAC2 = ACC `BAND_V`, `#PRE_EN` as the preamp-enable net,
+and the LM386 speaker amp behind PG0/PG1.
+
 ## G90 schematic cross-reference
 
 An external comparison with the public Xiegu G90 schematics (same

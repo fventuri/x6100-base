@@ -92,6 +92,16 @@ only as evidence boundaries, not as planned tasks.
     PE13, PD4, PE2, PG4, PB2, PG11); these remain X6100-specific
     evidence boundaries pending the X6100 schematic or bench work
 
+### OEM maintenance-manual reference
+
+-   [x] Extract pin/net evidence from the X6100 maintenance manual:
+    rail names + RX/TX behavior (`+5R`/`+5T`/`+5A`/`+3.3A`/`+3.3LO`),
+    `VEXT`, `PSYNC`, `#PRE_EN`, ACC `TRX`/`BAND_V`, LM386 speaker, PA
+    bias DAC (`docs/maintenance_manual_findings.md`)
+-   [ ] Bench-confirm `+5R`/`+5T` enable mapping: toggle PE8/PE9/PG11 in
+    a read-safe dev firmware and watch rail test points 5/6 (also
+    re-test PD4's role)
+
 ## RTOS
 
 -   [x] Identify bare-metal superloop; no RTOS scheduler (HIGH CONFIDENCE)
@@ -268,6 +278,7 @@ only as evidence boundaries, not as planned tasks.
     rate conversion, and documented remaining work)
 -   [x] tx_pipeline.md (initial mode handoff and input-gain stages)
 -   [x] g90_comparison.md (external G90-schematic cross-reference)
+-   [x] maintenance_manual_findings.md (OEM service-manual pin/net evidence)
 
 ## Milestone 1
 

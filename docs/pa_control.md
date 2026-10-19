@@ -1,5 +1,12 @@
 # PA bias and RX/TX hardware control
 
+<!-- Maintenance-manual cross-reference: the OEM manual confirms +5R (RX)
+and +5T (TX) are complementary RX/TX-switched 5 V rails. The complementary
+PA tuple (PE8/PG11 high in TX, PE9 high in RX) is the candidate enable for
++5T / +5R respectively -- HYPOTHESIS, benchable at rail test points 5/6.
+"+5T must read 5 V during TX" (manual p.16) ties the PA to the +5T rail.
+See docs/maintenance_manual_findings.md. -->
+
 ## Scope and evidence
 
 This document describes the hardware-facing PA control recovered from
