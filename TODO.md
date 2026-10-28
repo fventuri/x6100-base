@@ -98,9 +98,14 @@ only as evidence boundaries, not as planned tasks.
     rail names + RX/TX behavior (`+5R`/`+5T`/`+5A`/`+3.3A`/`+3.3LO`),
     `VEXT`, `PSYNC`, `#PRE_EN`, ACC `TRX`/`BAND_V`, LM386 speaker, PA
     bias DAC (`docs/maintenance_manual_findings.md`)
--   [ ] Bench-confirm `+5R`/`+5T` enable mapping: toggle PE8/PE9/PG11 in
-    a read-safe dev firmware and watch rail test points 5/6 (also
-    re-test PD4's role)
+-   [x] Resolve PD3=`+5R` / PD4=`+5T` (HIGH CONFIDENCE): single
+    front-panel LED is green in RX, red in TX/ATU-tune (user-VERIFIED on
+    hardware) = green on `+5R`/PD3, red on `+5T`/PD4; matches firmware
+    RX/TX levels, the manual rail table, and the SP5TLS reference. PA
+    tuple (PE8/PE9/PG11) is a separate PA-stage enable
+-   [ ] Last nuance: multimeter at rail test points 5/6 across an
+    RX->TX transition to confirm PD3/PD4 switch the full rails, not only
+    the LED elements
 
 ## RTOS
 

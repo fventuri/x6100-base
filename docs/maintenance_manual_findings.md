@@ -44,25 +44,47 @@ harmonic-avoidance signal (`docs/rf_switching.md`,
 
 ## What this adds to specific firmware pins
 
-### +5R / +5T enable ↔ the PA enable tuple (NEW hypothesis)
+### +5R / +5T enable = PD3 / PD4 (corrected)
 
-`docs/pa_control.md` / `docs/gpio.md` established a complementary RX/TX
-tuple: in TX **PE8 = PG11 = 1 and PE9 = 0**; in RX the reverse, with the
-hardware-variant callback following PE8/PG11. The manual now gives two
-complementary rails with exactly that polarity:
+> Correction (2026-10-28): an earlier draft of this section mapped the
+> rails onto the PA tuple (PE8/PG11/PE9). SP5TLS's independent firmware
+> reference (`~/X6100/x6100-base-SP5TLS/docs/mcu_reference.md`) and our
+> own RX/TX GPIO sequences show the better fit is **PD3 / PD4**; the PA
+> tuple is a separate signal. The corrected mapping follows.
 
-- **PE8 / PG11** (high in TX) → candidate **`+5T` enable** (transmit rail / PA)
-- **PE9** (high in RX) → candidate **`+5R` enable** (receive rail / RX front end)
+The firmware drives **PD3 = 1 in RX / 0 in TX** and **PD4 = 0 in RX /
+1 in TX** — exactly the manual's `+5R` (on in RX) / `+5T` (on in TX)
+polarity. SP5TLS assigns **PD3 = `+5R`, PD4 = `+5T`** on that basis, which
+matches the original firmware reading before our PD3 bench test.
 
-This is a natural candidate mapping, **HYPOTHESIS / MEDIUM CONFIDENCE**:
-the manual proves the rails and their polarity, the firmware proves the
-GPIO polarity, but the wire between them is not shown. It is directly
-benchable — probe test points 5 (`+5R`) and 6 (`+5T`) while a dev
-firmware toggles PE8/PE9/PG11 (the same bisection method that resolved
-PD3 and PG0/PG1). It also means the earlier "**PD4 = +5T** candidate"
-should be treated with caution: the tuple pins are now the stronger
-candidates, and PD4's role is re-opened (`docs/gpio.md`,
-`docs/charger.md`).
+- **PD3** (high in RX, low in TX) → **`+5R` receive-rail enable**
+- **PD4** (low in RX, high in TX) → **`+5T` transmit-rail enable**
+
+The **PA tuple** PE8/PG11 (high in TX) and PE9 (high in RX), with the
+variant callback, is the **PA-stage enable** — a *distinct* signal that
+co-asserts with `+5T`/`+5R` because the PA needs the transmit rail, not
+the rail switch itself (`docs/pa_control.md`).
+
+**Decisive confirmation (user, 2026-10-28):** the radio has a **single**
+front-panel LED, and it is **green normally (RX) and red when transmitting
+or while the ATU is tuning**. ATU tuning keys a carrier, i.e. TX. This is
+a bi-color LED whose two elements map one-to-one onto the rails:
+
+- **green element** lit by **`+5R`** (PD3, high in RX)
+- **red element** lit by **`+5T`** (PD4, high in TX / tune)
+
+That explains the PD3 bench result (driving PD3 high lit the LED, low
+turned it off, radio idle = RX → green) without a dedicated "power LED"
+line: PD3 is the `+5R` enable and the LED is the visible sign of the live
+rail. A plain power LED would not track RX/TX. The earlier "PD3 = power
+LED, not `+5R`" conclusion is therefore superseded.
+
+Confidence: **PD3 = `+5R`, PD4 = `+5T` — HIGH CONFIDENCE**, convergent
+across the firmware RX/TX levels, the LED colour behaviour, the manual's
+rail table, and the SP5TLS reference. The only residual check is whether
+PD3/PD4 switch the full receive/transmit rails or only the LED elements —
+a multimeter at rail test points 5 (`+5R`) / 6 (`+5T`) across an RX→TX
+transition settles it.
 
 ### PE2 = ACC `TRX` (T/R switch) — corroborated
 
@@ -142,12 +164,44 @@ Xiegu house names seen in `docs/g90_comparison.md`.
    `x6100-base-experiments/claude/PLAN-bms-status-readout.md`) when
    probing PE13 / PG4.
 
+## SP5TLS independent reference cross-check
+
+Michael Zabielski (SP5TLS) shared a single-page MCU reference
+(`~/X6100/x6100-base-SP5TLS/docs/mcu_reference.md`) summarising his own
+BASE 1.1.9 analysis. It is largely **independent corroboration** of this
+project — same firmware hash, same core/clock/memory/IRQ/DMA/peripheral
+facts — and it is the source that prompted the PD3/PD4 = `+5R`/`+5T`
+correction above. Points of note when reconciling with our docs:
+
+- **Corroborates** (independently reached the same result): bq24715
+  charger at I2C1 `0x09` (`docs/charger.md`), 250 MHz SYSCLK /
+  `RCC_PLLCFGR = 0x04403C0C` (`docs/clocks.md`), the shift-chain roles,
+  the PCA9535/direct-GPIO variant callback table, PE2 = ACC `TRX`,
+  PA5 = ACC `BAND_V`, PE15 = codec reset, the bias-DAC at `0x63`, and the
+  SPI6 24-bit image on PG12/13/14.
+- **Advances our PD3/PD4 reading**: he keeps PD3 = `+5R`, PD4 = `+5T`
+  from the firmware RX/TX pattern — see the corrected section above.
+- **One discrepancy to re-check (likely a slip in his summary)**: his
+  table lists the PCA9535 expander (`0x20`) on **I2C1**; our evidence
+  (`docs/i2c.md`, address byte `0x40`) places it on **I2C2**. The
+  bq24715 (`0x09`) is the I2C1 device; the RF-control PCA9535 is I2C2.
+- **Open items he flags that we also hold open or assign differently**:
+  jack-detect PF15-vs-PG15 (we assign PF15), ADC2 on DMA2 S2-vs-S3 (we
+  note S2 with the same caveat), `PWR_CR` VOS-vs-overdrive, I2C1 ~390 kHz
+  after the clock switch. None contradict a VERIFIED result here.
+
+Net: his document adds **no new verified facts** beyond ours, but it is
+valuable as a second independent pass that agrees on the hard-won results
+and sharpens the PD3/PD4 rail interpretation.
+
 ## Confidence summary
 
 - Rail names, RX/TX behavior, PSYNC, VEXT, #PRE_EN, LM386, ACC T/R +
   band voltage, PA bias DAC: **VERIFIED** as stated in the OEM manual.
-- `+5R`/`+5T` → PE9 / PE8+PG11 mapping: **HYPOTHESIS / MEDIUM
-  CONFIDENCE** (rails and GPIO polarity each proven; the connection is
-  inferred and benchable).
+- `+5R`/`+5T` → **PD3 / PD4** mapping: **HIGH CONFIDENCE**, convergent
+  across the firmware RX/TX levels, the single bi-color LED's green-RX /
+  red-TX behaviour (user-VERIFIED on hardware), the manual's rail table,
+  and the SP5TLS reference. Only the rail-vs-LED-only nuance remains (a
+  multimeter check at rail test points 5/6).
 - PE2 = ACC TRX, PA5 = BAND_V: **HIGH CONFIDENCE** (now corroborated by
   the service manual).

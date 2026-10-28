@@ -229,8 +229,8 @@ init sequence and the runtime enable.
 6. classify full when the recovered capacity-like value is at least
    `1800.0` or PE13 is low;
 7. toggle PD3 on charging samples and force PD3 high in the full state
-   (PD3 drives the front-panel power/charge LED — blink while charging,
-   solid when full);
+   (PD3 is the `+5R` enable, which lights the green front-panel LED —
+   so this blinks the green LED while charging, solid when full);
 8. leave PF11 high on exit.
 
 GPIO configuration, levels, calls, comparisons, and ordering are
@@ -238,16 +238,18 @@ VERIFIED. PE13 is an input to the early full decision, not the charger
 enable. Its exact electrical source is unresolved.
 
 PF11 is written as an output; it is not read by this loop. Its physical
-net remains HYPOTHESIS. PD3 drives the front-panel **power/charge LED**
-(active-high): confirmed on hardware by externally driving PD3 high (LED
-on) and low (LED off) with the radio idle. This resolves the early
-toggle-while-charging / high-when-full behaviour as the LED's blink/solid
-charge indication, and supersedes the earlier interpretation of PD3 as
-the `+5R` receive rail. The complementary PD3/PD4 RX/TX pattern in normal
-operation therefore needs re-examination (PD4 / `+5T` untested here): the
-power LED tracking RX/TX would be unusual, so either the `+5R`-rail model
-for PD3 was an overinterpretation of the toggling or the nets differ:
-VERIFIED PD3=power LED; HYPOTHESIS for the remaining +5R/+5T mapping.
+net remains HYPOTHESIS. **PD3 is the `+5R` receive-rail enable** (high in
+RX, low in TX), and the single front-panel LED is a bi-color indicator
+lit **green by `+5R`** (RX) and **red by `+5T`** (PD4, TX / ATU-tune) —
+confirmed on hardware: the LED is green normally and red when transmitting
+or tuning (user observation), and driving PD3 high/low with the radio idle
+turned the green LED on/off. The early toggle-while-charging /
+high-when-full behaviour is therefore PD3 flashing the green LED via
+`+5R`. This supersedes the earlier "PD3 = dedicated power LED, not `+5R`"
+reading (a plain power LED would not track RX/TX). PD3 = `+5R`, PD4 = `+5T`:
+HIGH CONFIDENCE, convergent across firmware RX/TX levels, the LED colour
+behaviour, the maintenance manual, and the SP5TLS reference. See
+`docs/maintenance_manual_findings.md`.
 
 PF13 has no charger role. It is consumed by the TIM3 telegraph-key
 input path: VERIFIED separation.
@@ -318,8 +320,8 @@ the early service loop configures together:
 | PE13 | input to the "battery full" decision (full when low) | VERIFIED behavior | likely charger status / CHG-done / DC-in; net unknown |
 | PF11 | driven and held high across the loop, never read | VERIFIED behavior | candidate charger/battery power-path or load-switch enable; HYPOTHESIS |
 | PG4 | sampled in run, awaited high before power-down handoff | HIGH CONFIDENCE power/status feedback | likely supply-present / power-good supervisor |
-| PD3 | front-panel power/charge LED (blink/solid) | VERIFIED on hardware | — |
-| PD4 | configured low with the cluster; `+5T` candidate | HIGH CONFIDENCE levels | rail identity |
+| PD3 | `+5R` enable; lights green front-panel LED (blinks it for charge status) | HIGH CONFIDENCE role; VERIFIED levels + LED | rail-vs-LED-only |
+| PD4 | `+5T` enable; lights red LED in TX/tune | HIGH CONFIDENCE role; VERIFIED levels + LED | rail-vs-LED-only |
 
 The related Xiegu G90 has **no battery-management hardware at all** (no
 fuel gauge, charger IC, or battery connector appears anywhere in its

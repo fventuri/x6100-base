@@ -142,11 +142,11 @@ names are not yet known:
 | PE10 | low-delay-high pulse after external PA-bias device writes | VERIFIED |
 | PE8, PE9, PG11 and variant callback | PA calibration and normal TX enable subset | HIGH CONFIDENCE role; VERIFIED levels |
 | PE12 | per-sample active-low CW/RF envelope output; otherwise forced high | HIGH CONFIDENCE role; VERIFIED behavior |
-| PD3 | drives the front-panel **power/charge LED**, active-high (externally driving PD3 high lit the LED, low turned it off; radio idle) — supersedes the earlier `+5R` rail-enable guess for PD3 | VERIFIED on hardware |
-| PD4 | complementary partner of PD3; candidate `+5T` TX rail enable | HIGH CONFIDENCE role; VERIFIED levels |
+| PD3 | **`+5R` receive-rail enable / RX-state line**: high in RX, low in TX. Lights the **green** side of the single bi-color front-panel LED (green in RX; early charge loop blinks it for charge status) | VERIFIED levels + LED behavior; HIGH CONFIDENCE `+5R` role |
+| PD4 | **`+5T` transmit-rail enable**: low in RX, high in TX. Lights the **red** side of the bi-color LED in TX / ATU-tune | HIGH CONFIDENCE `+5T` role; VERIFIED levels + LED behavior |
 | PE2 | candidate ACC `TRX`; low in RX and high in TX | HIGH CONFIDENCE role; VERIFIED levels |
 | PD2 | final output cleared after PD4/PD3 delays when register `0x0030` bit 16 requests shutdown | VERIFIED behavior; HIGH CONFIDENCE support-power/power-hold role |
-| PD3, PD4 | sequenced low during shutdown (PD3 = power LED off at power-down, VERIFIED; PD4 candidate `+5T`) | VERIFIED levels |
+| PD3, PD4 | both sequenced low during shutdown (`+5R`/`+5T` off, LED off) | VERIFIED levels |
 | PF11 | configured as output and held high by the charger/battery startup loop; exact net unknown | VERIFIED behavior |
 | PF12 | active-high runtime charger enable; also mirrors the expander-backed variant | HIGH CONFIDENCE role; VERIFIED levels |
 | PE13 | sampled by the charger/battery startup loop as part of its full/charging decision | VERIFIED behavior; physical net unresolved |
@@ -172,13 +172,20 @@ callback selects active-low PCA9535 bit 1 or active-high PF12 according
 to hardware variant: HIGH CONFIDENCE role; VERIFIED levels and
 backends. Full ordering and thresholds are in `docs/charger.md`.
 
-PD3 drives the front-panel **power/charge LED** (active-high): VERIFIED on
-hardware by externally driving PD3 high (LED on) and low (LED off) with the
-radio idle. The startup battery loop's toggle-while-charging / high-when-full
-use of PD3 is therefore the LED's blink/solid charge indication. This supersedes
-the earlier reading of PD3 as the `+5R` receive rail; the complementary PD3/PD4
-RX/TX pattern seen in later code still needs re-examination (PD4 / `+5T`
-untested): VERIFIED PD3 = power LED; HYPOTHESIS for the remaining +5R/+5T mapping.
+**PD3 = `+5R`, PD4 = `+5T` (resolved).** The single front-panel LED is a
+bi-color indicator: **green in RX, red in TX / ATU-tune** (VERIFIED on
+hardware by the user). This matches the two RX/TX rails one-to-one — the
+green element is lit by `+5R` (PD3, high in RX) and the red element by
+`+5T` (PD4, high in TX) — and matches the firmware's PD3/PD4 RX/TX levels,
+the maintenance manual's rail table (`docs/maintenance_manual_findings.md`),
+and SP5TLS's independent reference. So PD3 is the `+5R` enable, not a
+dedicated "power/charge LED" line; the LED is the visible sign of which
+rail is live. The early battery loop's toggle-while-charging /
+high-when-full use of PD3 simply flashes the green LED (via `+5R`) for
+charge status. The earlier bench conclusion "PD3 = power LED, not `+5R`"
+was the over-interpretation and is now itself superseded. Remaining
+nuance, benchable with a multimeter at rail test points 5/6: confirm PD3
+switches the whole receive rail versus only the LED element.
 
 The precise RX/TX levels and ordering of the PA-related group, and the
 I2C1 bias-control device associated with PE10, are documented in
@@ -273,13 +280,19 @@ and PB9's exact physical PTT control, remain unresolved. See
 
 The OEM X6100 maintenance manual (`docs/maintenance_manual_findings.md`)
 confirms `+5R` and `+5T` are real, complementary RX/TX-switched 5 V rails
-(`+5R` on in RX, `+5T` on in TX). This yields a new **HYPOTHESIS**: the
-complementary PA tuple drives them — **PE8/PG11 (high in TX) = `+5T`
-enable, PE9 (high in RX) = `+5R` enable** — benchable at rail test points
-5/6. It also means **PD4 is no longer a strong `+5T` candidate** (PD3 is
-the power/charge LED, not `+5R`). The manual further corroborates PE2 =
+(`+5R` on in RX, `+5T` on in TX). The firmware drives **PD3 = 1 in RX /
+0 in TX** and **PD4 = 0 in RX / 1 in TX**, exactly that polarity, so the
+convergent reading (firmware + the SP5TLS reference + the manual) is
+**PD3 = `+5R`, PD4 = `+5T`**. The PA tuple (PE8/PG11 high in TX, PE9 high
+in RX) is the *separate* PA-stage enable, not the rail switch. The PD3
+bench result (toggling PD3 toggled a front-panel LED, radio idle) stays a
+VERIFIED fact but its interpretation is now open: PD3 tracking RX/TX is
+evidence it is the `+5R` enable with the LED powered from that rail,
+rather than a dedicated power-LED line — benchable at rail test points
+5/6 across a real RX→TX transition. The manual further corroborates PE2 =
 ACC `TRX`, PA5/DAC2 = ACC `BAND_V`, `#PRE_EN` as the preamp-enable net,
-and the LM386 speaker amp behind PG0/PG1.
+and the LM386 speaker amp behind PG0/PG1. See
+`docs/maintenance_manual_findings.md`.
 
 ## G90 schematic cross-reference
 
