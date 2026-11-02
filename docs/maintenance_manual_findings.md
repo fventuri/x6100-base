@@ -120,6 +120,15 @@ voltage turn normally." Confirms `#PRE_EN` (active-low preamp enable)
 as a real X6100 net — the same name the G90 uses (G90 PC2). The X6100
 RX front end uses an **AS179** RF switch for the preamp.
 
+**Candidate MCU pin: PG2.** A bench bisection (2026-11-02) identified **PG2**
+as the RX front-end enable that gates the whole receive path — held high in
+RX, constant across bands (`docs/gpio.md` "PG2 is the RX front-end enable").
+`#PRE_EN` / the AS179 preamp control is the leading candidate for what PG2
+ultimately drives, though the firmware-visible net has not been traced to the
+schematic. The active-low manual name vs the pin's released-high level is not
+a contradiction: PG2 may drive an upstream enable/buffer rather than the
+`#PRE_EN` pad directly.
+
 ### Internal-speaker path uses an LM386 + `S/P` (p.13)
 
 The internal speaker is driven by an **LM386** audio power amp (test

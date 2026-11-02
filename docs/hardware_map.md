@@ -177,11 +177,14 @@ VERIFIED separation.
 | primary RF index | PCA9535 one-hot outputs | PD9/PD10/PD11/PD13 binary | VERIFIED |
 | PA control | PCA9535 bit 0 | PD14 | VERIFIED |
 | charger | PCA9535 bit 1 active-low | PF12 active-high | VERIFIED levels; HIGH CONFIDENCE role |
-| other auxiliary controls | PCA9535 bits 2/10/14/15 | GPIOG/PD15 alternatives | VERIFIED mapping; physical names unresolved |
+| other auxiliary controls | PCA9535 bits 2/10/14/15 | GPIOG/PD15 alternatives | VERIFIED mapping; physical names mostly unresolved |
 
-The selected board revision and physical net names remain unresolved.
-The complete callback table is
-`analysis/pa/variant_callback_map.csv`.
+The selected board revision and physical net names remain mostly
+unresolved. One of the direct-GPIO auxiliary controls is now identified:
+**PG2 is the RX front-end enable** (open-drain + pull-up, held high in RX,
+constant across bands), bench-proven to gate the whole receive path — see
+`docs/gpio.md` "PG2 is the RX front-end enable". The complete callback table
+is `analysis/pa/variant_callback_map.csv`.
 
 ## Complete direct peripheral-reference export
 

@@ -151,7 +151,8 @@ names are not yet known:
 | PF12 | active-high runtime charger enable; also mirrors the expander-backed variant | HIGH CONFIDENCE role; VERIFIED levels |
 | PE13 | sampled by the charger/battery startup loop as part of its full/charging decision | VERIFIED behavior; physical net unresolved |
 | PF15 | sampled with S/P mode; stable low state enables 0.05 receive-audio gain | VERIFIED behavior; HIGH CONFIDENCE S/P jack detect |
-| PG8 | input; ODR latch changes during audio startup but does not drive the pad | VERIFIED |
+| **PG2** | **RX front-end enable** — the receive signal-path enable. Live OEM config (`oem-afedump`, 2026-11-02) drives it **open-drain + internal pull-up, released high, in every band** (constant RX enable); it is **not** in the central init table, so it is configured on the direct-GPIO variant path. Bench-proven (phase3-rx, 2026-11-02): driving PG2 high is **necessary and sufficient** to open the receiver (see below) | HIGH CONFIDENCE role; VERIFIED on hardware (bench) |
+| PG8 | **output driven high at runtime** — the live OEM config dump (`oem-afedump`, 2026-11-02: MODER output, push-pull, pull-up, ODR=1/IDR=1, constant across bands) supersedes the earlier "stays input, ODR latch does not drive the pad" reading, which missed a later output reconfiguration outside the central table. Bench test: driving PG8 high does **not** affect the receive path, so it is not the RX enable | VERIFIED levels (live dump); physical role unresolved |
 | PG1 | reconfigured input→output and driven high at startup; **internal-speaker / HPR output enable** — HPR analog output is silent without it even when codec registers match the OEM | HIGH CONFIDENCE role; VERIFIED on hardware (bench bisection 2026-10-16) |
 | PG0 | reconfigured input→output and driven high at startup alongside PG1; **speaker loudness** (gain/2nd-stage/rail) — PG0 alone = no sound, PG0+PG1 markedly louder than PG1 alone | HIGH CONFIDENCE role; VERIFIED on hardware (bench) |
 | PG11, PG12 | changed by startup, peripheral-reset, PA, or power-management paths | VERIFIED |
@@ -159,6 +160,40 @@ names are not yet known:
 PB2 is a timing/debug marker candidate because it brackets the complete
 DSP interrupt body: HIGH CONFIDENCE. Its electrical destination is
 unknown.
+
+### PG2 is the RX front-end enable (bench-resolved 2026-11-02)
+
+PG2 gates the entire receive signal path. It was found by diffing the
+**live** OEM GPIO configuration (not just the ODR latch) against an
+independent from-scratch receive firmware (`x6100-bbfw/firmwares/phase3-rx`).
+The `oem-afedump` instrument — a memory-only code cave on stock BASE 1.1.9
+that dumps the complete GPIO config banks (MODER/OTYPER/OSPEEDR/PUPDR/IDR/
+ODR/AFRL/AFRH) for every port A–G on each tune — showed the OEM, tuned to
+1410 kHz AM and again at 9.4 MHz, holds **PG2 as an open-drain output with
+an internal pull-up, released high**, identically in both bands. PG2 is not
+in the central init table (`FUN_0803158c`); it is driven on the direct-GPIO
+hardware-variant path.
+
+The independent receiver reproduced the OEM's digital RF switching, LO
+divider and I2S transport exactly yet sat at the I/Q noise floor
+(`iq_rms ≈ 25 ×1e-6`). A live per-pin GPIO sweep over the config deltas
+isolated the cause unambiguously: **driving PG2 high — and PG2 alone —
+lifts `iq_rms` on WDOV 1410 kHz AM to ≈ 80, with a clean station/empty
+contrast** (station `iq_rms ≈ 73`, carrier magnitude `env_dc ≈ 90–130`;
+empty channel `iq_rms ≈ 40`, `env_dc ≈ 20`), matching the OEM baseline
+(WDOV `iq_rms ≈ 79`, empty ≈ 40). The neighbouring config deltas
+(PG8, PE11, PG6, PG3, PD15) had no effect on the receive path. The
+open-drain + pull-up detail matters: an open-drain "high" without the
+pull-up floats (IDR reads 0) and does not assert, so a push-pull high, or
+open-drain plus pull-up, is required.
+
+The physical net is not yet tied to the schematic; the maintenance manual's
+active-low preamp enable `#PRE_EN` (AS179 RF switch, see
+`docs/maintenance_manual_findings.md`) is the leading candidate for what PG2
+ultimately controls. This also identifies one of the previously
+"physical names unresolved" auxiliary GPIOG controls in
+`docs/hardware_map.md`. Whether PG2 is receive-only (deasserted in TX) is
+not yet established, since all captures were in RX.
 
 The earlier assignment of charger control to PF13 was incorrect. The
 battery path at `FUN_08032500` reads GPIOE IDR mask `0x2000`, which is
