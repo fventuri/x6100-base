@@ -123,9 +123,21 @@ PC5/PB0/PG6 path.
 Pin roles, bit counts, order, and latch behavior: VERIFIED.
 
 These routines are called by frequency/band configuration code.
-Interpretation as two RF relay/filter control shift chains is HIGH
-CONFIDENCE. The mapping from individual shifted bits to physical
-relays, filters, or attenuators remains unknown.
+
+The six-bit `FUN_0802cf88` chain (PB1-latched) is the **TX power
+attenuator**, not an RX band filter (VERIFIED 2026-11-02). Its only
+per-tune caller, `FUN_0802af0c`, computes the word from the TX power
+setting, not frequency: `word = 0x64 - power` (power < 0x25 -> 0x3F;
+0x25..0x64 -> 0x64 - power; >= 0x65 -> 0); the gate `FUN_0803147c` is
+`return 1`, so that branch always runs. Earlier captures that looked
+band-indexed (0x25 @ 1410 kHz, 0x3F @ 9.4 MHz) were per-band default TX
+power reloads. Hardware confirms it: sweeping this chain 0x00..0x3F does
+not change RX, and driving it blinks the TX LED. RX band selection is
+done entirely by the primary index (direct GPIO), the secondary SPI6
+image bit, and the DAC2 BAND_V staircase; the RX front-end enable is
+PG2. `FUN_0802d15c`/`FUN_0802d310` (PG6-latched) are never called on
+this build (gated off). The mapping of the remaining shifted bits to
+physical parts is otherwise unresolved.
 
 ## Direct runtime controls
 

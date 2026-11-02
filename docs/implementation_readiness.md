@@ -213,12 +213,25 @@ Exit criteria:
 
 ## Blocking gaps
 
-### Functional blocker
+### Functional blocker — RESOLVED (2026-11-02)
 
-The receive pipeline still lacks end-to-end documentation for DC
+Originally: the receive pipeline lacked end-to-end documentation for DC
 removal, IQ correction, frequency shift, FIR stages, AGC, and
-demodulation. Until recovered or independently redesigned, it blocks a
-compatible receiver.
+demodulation, which blocked a compatible receiver.
+
+This is now retired. The `x6100-bbfw` `phase3` branch implements the full
+receive chain independently and it is hardware-validated end to end:
+complex DC block + adaptive I/Q correction, analog LO-offset frequency
+shift, the decimation/interpolation FIR trees, feed-forward look-ahead
+AGC, and AM/LSB/USB demodulation — audible on air (WDOV 1410 AM, FT8
+7074 USB). The RX front-end enable was found to be **PG2** (not the
+serial chains). RF band switching meets the Phase-3 exit criterion
+"receiver works across every RF switching boundary": a telemetry sweep
+confirmed the primary index, secondary sub-band bit, and BAND_V code at
+every primary/secondary/BAND_V boundary, with objective carrier-contrast
+reception confirmed in bands 1/4/5/6 (others antenna-limited, not a
+firmware gap). See `x6100-bbfw/firmwares/phase3-rx/` and its
+`tools/band_sweep.py`.
 
 ### Transmit safety blockers
 
