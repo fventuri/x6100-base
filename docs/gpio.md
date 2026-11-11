@@ -149,7 +149,8 @@ names are not yet known:
 | PB2 | toggled at entry/exit of the fast DMA1 DSP handler | VERIFIED |
 | PG15 | sampled and debounced by TIM2 | VERIFIED |
 | PG4 | sampled during normal operation and awaited high during final shutdown | VERIFIED behavior; HIGH CONFIDENCE power/status feedback role |
-| PE8, PE9, PE11, PE14 | changed during startup, PA calibration, DSP operation, or shutdown | VERIFIED |
+| PE8, PE9, PE14 | changed during startup, PA calibration, DSP operation, or shutdown | VERIFIED |
+| **PE11** | **battery MCU-rail power-hold / keep-alive** — held HIGH throughout the run; together with PD2 (also high) it latches the battery→STM32 rail. Driving PE11 LOW browns out the STM32 rail 2–6 s after the power button is released on battery (R16/Linux rides on; only the MCU drops). Cleared together with PD2 during the shutdown sequence to release the rail. Bench-proven with an independent BASE firmware (`x6100-bbfw` bms-keepalive, 2026-11-10); see below | VERIFIED on hardware (bench) |
 | PE15 | low during early startup, high immediately before TLV320AIC3204 initialization | VERIFIED levels; HIGH CONFIDENCE codec reset |
 | PE10 | low-delay-high pulse after external PA-bias device writes | VERIFIED |
 | PE8, PE9, PG11 and variant callback | PA calibration and normal TX enable subset | HIGH CONFIDENCE role; VERIFIED levels |
@@ -194,7 +195,10 @@ lifts `iq_rms` on WDOV 1410 kHz AM to ≈ 80, with a clean station/empty
 contrast** (station `iq_rms ≈ 73`, carrier magnitude `env_dc ≈ 90–130`;
 empty channel `iq_rms ≈ 40`, `env_dc ≈ 20`), matching the OEM baseline
 (WDOV `iq_rms ≈ 79`, empty ≈ 40). The neighbouring config deltas
-(PG8, PE11, PG6, PG3, PD15) had no effect on the receive path. The
+(PG8, PE11, PG6, PG3, PD15) had no effect on the receive path — for PE11
+this is consistent with its later-resolved role as the **battery power-hold**
+(a power pin, not an RX control; see "PE11 is the battery MCU-rail power-hold"
+below). The
 open-drain + pull-up detail matters: an open-drain "high" without the
 pull-up floats (IDR reads 0) and does not assert, so a push-pull high, or
 open-drain plus pull-up, is required.
@@ -206,6 +210,49 @@ ultimately controls. This also identifies one of the previously
 "physical names unresolved" auxiliary GPIOG controls in
 `docs/hardware_map.md`. Whether PG2 is receive-only (deasserted in TX) is
 not yet established, since all captures were in RX.
+
+### PE11 is the battery MCU-rail power-hold (bench-resolved 2026-11-10)
+
+PE11 is the firmware-asserted keep-alive that holds the STM32's own power
+rail up on battery. It was resolved the same way as PG2 — by diffing the
+**live** OEM GPIO state against an independent from-scratch BASE firmware
+(`x6100-bbfw`) and bench-testing the single-pin difference — but it answers
+a different puzzle: why a bare firmware that reproduces the OEM's steady
+GPIO otherwise still **browns out on battery** a few seconds after boot.
+
+Power topology (R16 SSH recon + firmware): battery → bq24715 NVDC charger
+(BASE side) → VSYS, which feeds both the STM32 rail and R16's AXP PMIC. The
+power **button** engages the battery→VSYS path in hardware and bridges it
+only while held (and briefly after, via hold-up); firmware must then latch
+the STM32 rail or it collapses. R16's AXP independently holds VSYS once
+alive, so **R16/Linux always survives; only the STM32 drops** if the latch
+is not taken over.
+
+Bench result (`x6100-bbfw` bms-keepalive, 2026-11-10, battery-only, adapter
+disconnected):
+
+- With PE11 **low**, a bare telemetry firmware — already driving PD2 high
+  (the documented power-hold) and matching the OEM's other steady levels —
+  **browns out 2–6 s after the power button is released** (lifetime scales
+  with how long the button is held). R16 rides on; only the MCU rail drops.
+- Replicating the OEM's full steady GPIO (`GPIOE ODR = 0xDE80`, which
+  includes PE11 high) **survives indefinitely** on battery.
+- Bisection isolated the cause to **PE11 alone**: a build identical to the
+  dying one except PE11 driven **high** survives the full discharge; PF11
+  level is irrelevant (it varied across surviving builds). Confirmed through
+  the production path (an unmodified telemetry firmware rebuilt with only the
+  PE11-high change) running standalone on battery with external power
+  disconnected **and R16 fully powered down** — proving the hold is entirely
+  BASE-firmware, independent of R16, the I2C3/USART6 link, and the charger
+  (the bq24715 is SMBus-unpowered on battery: "can't write bq24715").
+
+So the MCU-controlled battery power-hold is **PD2 together with PE11** —
+both must be high to keep the battery→STM32 rail latched; the shutdown
+sequence clears both to release it (`docs/shutdown.md`). PE11 has no effect
+on the receive path, consistent with a power rather than RF role. The exact
+schematic net is still untied (resolvable with continuity/voltage at the
+STM32 rail); a hard reset (GPIO Hi-Z for ~100 ms) also drops the rail, which
+matches a firmware-driven latch rather than a self-holding hardware latch.
 
 The earlier assignment of charger control to PF13 was incorrect. The
 battery path at `FUN_08032500` reads GPIOE IDR mask `0x2000`, which is

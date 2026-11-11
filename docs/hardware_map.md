@@ -143,7 +143,8 @@ does not use IWDG or WWDG: VERIFIED. See `docs/interrupts.md`,
 | speaker loudness | PG0 high (with PG1) | audio | HIGH CONFIDENCE role; VERIFIED on hardware — PG0 alone silent, PG0+PG1 much louder than PG1 alone |
 | PA-bias commit | PE10 low-delay-high | changed bias write | HIGH CONFIDENCE role; VERIFIED waveform |
 | charger enable | PF12 high or PCA9535 bit 1 low | startup/runtime | HIGH CONFIDENCE role; VERIFIED levels |
-| shutdown request | register `0x0030` bit 16 exits superloop; PD4 low, 5 s, PD3 low, 3 s, PD2 low; wait PG4 high | controlled shutdown | VERIFIED sequence; HIGH CONFIDENCE PD2 power-hold and PG4 feedback roles |
+| shutdown request | register `0x0030` bit 16 exits superloop; PD4 low, 5 s, PD3 low, 3 s, PD2 low, PE11 low; wait PG4 high | controlled shutdown | VERIFIED sequence; VERIFIED battery power-hold = PD2 + PE11 (bench); HIGH CONFIDENCE PG4 feedback role |
+| battery power-hold | PD2 high AND PE11 high | hold STM32 rail on battery | VERIFIED on hardware (bench, `x6100-bbfw` bms-keepalive 2026-11-10): PE11 low → MCU browns out 2–6 s after button release on battery; both high → rail held; see `docs/gpio.md` |
 | primary RF index | PCA9535 one-hot mask or PD9/10/11/13 binary | frequency change | VERIFIED |
 | secondary RF/ATU | SPI6 24-bit word; PG12 high-to-low latch | frequency/tune | VERIFIED |
 | software RF chains | PC5 data, PB0 clock, PB1 or PG6 latch | startup/frequency | VERIFIED protocol; HIGH CONFIDENCE relay role |

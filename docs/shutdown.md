@@ -65,14 +65,18 @@ VERIFIED.
 |---|---|---|---|
 | PD4 | low before the five-second delay | `+5T` transmit-rail disable | HIGH CONFIDENCE role; VERIFIED level |
 | PD3 | low after the five-second delay | power/charge LED off at power-down (PD3 = power LED, VERIFIED on hardware; supersedes the `+5R` rail reading) | VERIFIED level |
-| PD2 | low after the additional three-second delay | remaining support-power or power-hold disable | HIGH CONFIDENCE role; exact net unresolved |
+| PD2 | low after the additional three-second delay | **MCU battery power-hold (with PE11)** — one of the two pins that latch the battery→STM32 rail; cleared here to release it | VERIFIED power-hold role (bench, paired with PE11); exact schematic net unresolved |
 | PG4 | input awaited high before final reset | power/status feedback | HIGH CONFIDENCE role; exact source unresolved |
-| PE11 | cleared before and after the PG4 wait | member of PA/power shutdown state | VERIFIED behavior; exact individual net unresolved |
+| PE11 | cleared before and after the PG4 wait | **MCU battery power-hold (with PD2)** — held high while running, cleared here to release the battery→STM32 rail; not a PA output | VERIFIED behavior + hardware (bench); resolves the earlier "member of PA/power shutdown state, net unresolved" |
 
 The sequence is therefore an ordered rail shutdown, not a single
-`power_off` GPIO write: HIGH CONFIDENCE. PD2 is the strongest candidate
-for the final MCU-controlled power-hold output, but a final semantic
-symbol name requires continuity or voltage evidence.
+`power_off` GPIO write: HIGH CONFIDENCE. The MCU-controlled battery
+power-hold is now bench-resolved to **PD2 together with PE11**: on battery
+both must be high to keep the battery→STM32 rail latched, and clearing them
+here releases it (`x6100-bbfw` bms-keepalive, 2026-11-10 — with PE11 low a
+bare firmware browns out 2–6 s after the button is released; see
+`docs/gpio.md` "PE11 is the battery MCU-rail power-hold"). The exact
+schematic nets still require continuity/voltage evidence.
 
 ## Independent implementation contract
 

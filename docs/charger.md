@@ -318,10 +318,11 @@ the early service loop configures together:
 | PB6/PB7 (I2C1) | MAX17205 fuel-gauge bus | VERIFIED | — |
 | PF12 | charger enable (or PCA9535 bit 1 variant) | HIGH CONFIDENCE role | exact net |
 | PE13 | input to the "battery full" decision (full when low) | VERIFIED behavior | likely charger status / CHG-done / DC-in; net unknown |
-| PF11 | driven and held high across the loop, never read | VERIFIED behavior | candidate charger/battery power-path or load-switch enable; HYPOTHESIS |
+| PF11 | driven and held high across the loop, never read | VERIFIED behavior | **not** the battery power-hold: bench-refuted (x6100-bbfw, 2026-11-10 — battery survival is identical with PF11 high or low); net still unknown |
 | PG4 | sampled in run, awaited high before power-down handoff | HIGH CONFIDENCE power/status feedback | likely supply-present / power-good supervisor |
 | PD3 | `+5R` enable; lights green front-panel LED (blinks it for charge status) | HIGH CONFIDENCE role; VERIFIED levels + LED | rail-vs-LED-only |
 | PD4 | `+5T` enable; lights red LED in TX/tune | HIGH CONFIDENCE role; VERIFIED levels + LED | rail-vs-LED-only |
+| **PD2 + PE11** | **MCU battery power-hold / keep-alive** — both held high during run, both cleared on shutdown; together they latch the battery→STM32 rail on battery (button bridges it at boot, firmware must take over) | VERIFIED on hardware (bench, x6100-bbfw bms-keepalive 2026-11-10) | exact schematic net; full writeup in `docs/gpio.md` "PE11 is the battery MCU-rail power-hold" |
 
 The related Xiegu G90 has **no battery-management hardware at all** (no
 fuel gauge, charger IC, or battery connector appears anywhere in its
